@@ -18,7 +18,10 @@ import java.util.Map;
  * DBus interface for the org.example.Signal service.
  * Including emitted Signals and returned Errors.
  */
-public interface Signal extends DBusInterface {
+@DBusProperty(name = "Id", type = byte[].class, access = DBusProperty.Access.READ)
+public interface Signal extends DBusInterface, Properties {
+
+    byte[] test();
 
     class MessageReceivedV2 extends DBusSignal {
 

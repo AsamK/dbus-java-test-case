@@ -6,6 +6,7 @@ package org.example;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.interfaces.DBusSigHandler;
+import org.freedesktop.dbus.types.Variant;
 
 import java.util.Map;
 
@@ -20,6 +21,17 @@ public class App {
             System.out.println("Received: " + messageReceived.getMessage());
         };
         dBusConn.addSigHandler(Signal.MessageReceivedV2.class, signal, dbusMsgHandler);
+
+        final byte[] bytesA = signal.test();
+        System.out.println("A with " + bytesA.length + " bytes");
+
+        final byte[] bytesB = signal.Get("Signal", "Id");
+        System.out.println("B with " + bytesB.length + " bytes");
+
+        final Map<String, Variant<?>> properties = signal.GetAll("Signal");
+        final byte[] bytesC = (byte[]) properties.get("Id").getValue();
+        System.out.println("C with " + bytesC.length + " bytes");
+
         return dBusConn;
     }
 
@@ -27,7 +39,31 @@ public class App {
         final var busType = DBusConnection.DBusBusType.SESSION;
         var dBusConn = DBusConnectionBuilder.forType(busType).build();
         dBusConn.requestBusName("org.example.App");
-        dBusConn.exportObject(() -> "/test");
+        dBusConn.exportObject(new Signal() {
+            @Override
+            public byte[] test() {
+                return new byte[]{};
+            }
+
+            @Override
+            public <A> A Get(String s, String s1) {
+                return (A) new byte[]{};
+            }
+
+            @Override
+            public <A> void Set(String s, String s1, A a) {
+            }
+
+            @Override
+            public Map<String, Variant<?>> GetAll(String s) {
+                return Map.of("Id", new Variant<>(new byte[]{}));
+            }
+
+            @Override
+            public String getObjectPath() {
+                return "/test";
+            }
+        });
         return dBusConn;
     }
 
